@@ -45,17 +45,17 @@ public class IntersectionWatchdogApp {
         // Update the timestamp every time a heartbeat arrives
         consumer.setMessageListener(message -> {
             if (message instanceof TextMessage) {
-                lastHeartbeatTime.set(System.currentTimeMillis());
+                lastHeartbeatTimestamp.set(System.currentTimeMillis());
                 System.out.println("Watchdog: Heartbeat received from intersection-service.");
             }
         });
 
         // Start the background moniter task to detect missed heartbeats
-        ScheuledExecutorService schedular = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService schedular = Executors.newSingleThreadScheduledExecutor();
         schedular.scheduleAtFixedRate(() -> {
-            long timeSinceLastHeartbeat = System.currentTimeMillis() - lastHeartbeatTime.get();
+            long timeSinceLastHeartbeat = System.currentTimeMillis() - lastHeartbeatTimestamp.get();
             if (timeSinceLastHeartbeat > TIMEOUT_MILLIS) {
-                System.err.println("CRITICAL ALERT: Intersection Service has missed heartbeats! Last seen " + timeSinceLastHeartbeat + "ms ago."); 
+                System.err.println("CRITICAL ALERT: Intersection Service has missed heartbeats! Last seen " + timeSinceLastHeartbeat + "ms ago.");
             }
         }, 5, 5, TimeUnit.SECONDS);
     }
