@@ -18,7 +18,14 @@ public class RoutingServiceAppTest {
     @BeforeAll
     public static void setup() throws InterruptedException {
         // Start the Javalin app in a separate thread so it doesn't block the tests
-        new Thread(() -> RoutingServiceApp.main(new String[0])).start();
+        new Thread(() -> {
+            try {
+                Class<?> appClass = Class.forName("co.wethinkcode.trafficflow.RoutingServiceApp");
+                appClass.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Unable to start RoutingServiceApp", e);
+            }
+        }).start();
         
         // Give the server 3 seconds to fully initialize and connect to ActiveMQ
         Thread.sleep(3000);
@@ -27,9 +34,9 @@ public class RoutingServiceAppTest {
     @Test
     public void testHealthEndpoint() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:7023/health"))
-                .GET()
-                .build();
+            .uri(URI.create("http://localhost:7023/health"))
+            .GET()
+            .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
@@ -39,12 +46,31 @@ public class RoutingServiceAppTest {
     @Test
     public void testRouteEstimateMissingParameter() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:7023/route/estimate"))
-                .GET()
-                .build();
+            .uri(URI.create("http://localhost:7023/route/estimate"))
+            .GET()
+            .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
         assertEquals("Missing 'intersection' query parameter", response.body());
+    }
+
+    @Test
+    public void testRouteEstimateValidRequest() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:7023/route/estimate?intersection=INT-01"))
+            .GET()
+            .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        assertEquals(200, response.statusCode());
+        assertEquals("application/json", response.headers().firstValue("Content-Type").orElse(""));
+        
+        // Verify the JSON body contains the expected keys
+        String body = response.body();
+        assertTrue(body.contains("\"intersection\": \"INT-01\""));
+        assertTrue(body.contains("\"congestionLevel\""));
+        assertTrue(body.contains("\"estimatedTravelTimeMins\""));
     }
 } 
