@@ -6,24 +6,27 @@ import java.util.*;
 
 public class IngestionServiceApp {
 
-    // Define standard headers
+    // Define standard headers of exact column names we expect to receivr
     private static final String[] HEADERS = {"intersection_id", "district", "signal_Type", "active_flag"};
 
+    ///Bubble up file-reading errors, if application crashes immediately alerts us e.g. if critical data is missing
     public static void main(String[] args) throws IOException {
         Javalin app = Javalin.create().start(7020);
+        app.get("/health", ctx -> ctx.result("OK"));
 
-        // Call the CSV cleaning method and make it avaliable for other services to consume
+        // Call the CSV cleaning method(Processes raw data into memory) and make it available for other services to consume
         List<String[]> cleanedData = cleanIntersectionsCsv("intersections-legacy.csv");
 
         // Print representation to console
         String csvOutput = formatAsCsv(HEADERS, cleanedData);
         System.out.println(csvOutput);
 
+        // Create main API endpoint
         app.get("/intersections", ctx -> {
+            //explicitly sets the content type to text/csv for the response
             ctx.contentType("text/csv");
             ctx.result(csvOutput);
         });
-        app.get("/health", ctx -> ctx.result("OK"));
     }
 
     /**
@@ -40,7 +43,7 @@ public class IngestionServiceApp {
         // Use a Set to track duplicate rows (as strings) for removal
         Set<String> seenRows = new LinkedHashSet<>();
 
-        // Obtain the input stream from the classpath
+        // Safely obtain the input stream from the classpath
         InputStream inputStream = IngestionServiceApp.class.getClassLoader().getResourceAsStream(fileName);
 
         // Check if the file was found
@@ -50,7 +53,7 @@ public class IngestionServiceApp {
             /// Return an empty list if the file is not found
             return cleanedRows;
         }
-
+        // Dynamic Header Mapping
         // Try-with-resources: the BufferedReader will be closed automatically 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
