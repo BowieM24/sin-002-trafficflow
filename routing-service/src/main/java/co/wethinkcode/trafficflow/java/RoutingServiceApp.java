@@ -1,4 +1,4 @@
-package co.wethinkcode.trafficflow;
+package co.wethinkcode.trafficflow.java;
 
 import io.javalin.Javalin;
 import org.apache.activemq.ActiveMQConnectionFactory;
