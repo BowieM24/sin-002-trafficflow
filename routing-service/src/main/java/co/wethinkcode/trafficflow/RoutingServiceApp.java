@@ -22,7 +22,7 @@ public class RoutingServiceApp {
         // Domain endpoint providing estimated travel time based on the live congestion state
         app.get("/route/estimate", ctx -> {
             String intersection = ctx.queryParam("intersection");
-            
+
             // Validate incoming request
             if (intersection == null || intersection.isEmpty()) {
                 ctx.status(400).result("Missing 'intersection' query parameter");
@@ -57,9 +57,9 @@ public class RoutingServiceApp {
     }
 
     /**
-     * Connects to the ActiveMQ broker as a consumer on the congestion topic.
-     * It listens to the designated Topic and asynchronously updates the internal state 
-     * whenever the Congestion Service broadcasts a change.
+     * Connects to the ActiveMQ broker as a consumer on the congestion topic. It
+     * listens to the designated Topic and asynchronously updates the internal
+     * state whenever the Congestion Service broadcasts a change.
      */
     private static void startCongestionSubscriber() throws JMSException {
         // Setup the connection to ActiveMQ server
