@@ -23,4 +23,28 @@ public class RoutingServiceAppTest {
         // Give the server 3 seconds to fully initialize and connect to ActiveMQ
         Thread.sleep(3000);
     }
+
+    @Test
+    public void testHealthEndpoint() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:7023/health"))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+        assertEquals("OK", response.body());
+    }
+
+    @Test
+    public void testRouteEstimateMissingParameter() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:7023/route/estimate"))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(400, response.statusCode());
+        assertEquals("Missing 'intersection' query parameter", response.body());
+    }
 } 
