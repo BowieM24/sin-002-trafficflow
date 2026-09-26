@@ -162,3 +162,7 @@ then add tests under that module's `src/test/java/...` and run:
 ```
 mvn test
 ```
+
+Linkedin link: https://lnkd.in/p/dd3_Xyui
+
+GitHub Repo link: https://github.com/BowieM24/sin-002-trafficflow
