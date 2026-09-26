@@ -166,3 +166,6 @@ mvn test
 Linkedin link: https://lnkd.in/p/dd3_Xyui
 
 GitHub Repo link: https://github.com/BowieM24/sin-002-trafficflow
+                  https://github.com/BowieM24/sin-001-logisticsconnect
+
+Verification code: WTC-GFEMVUNF
