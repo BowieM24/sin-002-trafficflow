@@ -55,7 +55,7 @@ public class IngestionServiceApp {
         }
         // Dynamic Header Mapping
         // Try-with-resources: the BufferedReader will be closed automatically 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try ( BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             boolean isFirstLine = true;
 
